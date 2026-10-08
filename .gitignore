@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.taste-check/
+
+# Local-only notes
+CLAUDE.local.md
+tasks/
