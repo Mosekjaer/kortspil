@@ -1,0 +1,26 @@
+{
+  "name": "@kortspil/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "PORT=${SERVER_PORT:-3000} tsx watch --conditions=source src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/static": "^10.1.5",
+    "@kortspil/core": "workspace:*",
+    "fastify": "^5.12.5",
+    "nanoid": "^6.0.2",
+    "socket.io": "^4.8.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.1",
+    "socket.io-client": "^4.8.4",
+    "tsx": "^4.23.15"
+  }
+}
