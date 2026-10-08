@@ -1,0 +1,308 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. Sources (design-collection, see CLAUDE.md "Design"):
+ * - type: dont-board-me (condensed caps at poster size, lh .78, tiny medium caps labels)
+ * - colour: siena-film-foundation (warm black ground, paper ink, one saturated accent)
+ * - motion: terminal-industries (house ease expo.out, 200 ms feedback, 500 ms base)
+ * Single dark theme on purpose: the spec asks for dark by default and the app is used in dark bars.
+ */
+@font-face {
+  font-family: 'Anton';
+  src: url('/fonts/anton-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  src: url('/fonts/inter-tight-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@theme {
+  /* Ground: warm black, near siena's soot #0e0e0e family. */
+  --color-ink: #13110f;
+  /* Raised surfaces for sheets, rows and inputs. */
+  --color-raise: #1e1b18;
+  --color-raise-2: #2a2622;
+  /* Text: warm paper, near siena's paper #faf7ef family. 17.4:1 on ink. */
+  --color-paper: #f4eee2;
+  /* Secondary text. 7.6:1 on ink. */
+  --color-muted: #a39a8e;
+  /* The one accent, lime family of terminal-industries #abff02. Primary action, active state, highlights. */
+  --color-accent: #c8f53a;
+  /* Card faces are objects, not UI: their ink is the suit colour. */
+  --color-card: #f7f2e8;
+  --color-card-red: #c8231b;
+  --color-card-black: #17140f;
+
+  /* Display: Anton, open condensed sans standing in for dont-board-me's Bayon class. */
+  --font-display: 'Anton', 'Arial Narrow', sans-serif;
+  /* Everything else: Inter Tight (dont-board-me's Neue Montreal substitute per its fontmatch). */
+  --font-sans: 'Inter Tight', system-ui, sans-serif;
+
+  /* House ease: terminal-industries easing.expo-out (GSAP expo.out). */
+  --ease-house: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  color-scheme: dark;
+  -webkit-tap-highlight-color: transparent;
+  /* terminal-industries duration.fast (hover/underline .2 s). */
+  --dur-fast: 200ms;
+  /* terminal-industries duration.base (opacity/transform .5 s). */
+  --dur-base: 500ms;
+  /* dont-board-me motion row line-reveal (.8 s). */
+  --dur-reveal: 800ms;
+  /* Spec section 9: card flip about 300 ms. */
+  --dur-flip: 300ms;
+
+  /* z-index scale */
+  --z-raised: 10;
+  --z-sheet: 40;
+  --z-toast: 50;
+  --z-gate: 60;
+}
+
+html,
+body {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer base {
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+/* Phone-first: on tablets and desktops the app keeps a phone-width column. */
+#root,
+.column {
+  width: 100%;
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+@layer components {
+  /* Display type: one loud gesture per screen. */
+  .display {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    /*
+   * Anton ink, measured: cap H 0.86em, Ø 0.98em, Å 1.23em above the baseline.
+   * At 0.88 the line box reaches 0.865em, so plain caps never clip; the top
+   * padding keeps Å (0.365em above the line box) inside scroll containers.
+   */
+    line-height: 0.88;
+    padding-top: 0.38em;
+    letter-spacing: -0.01em;
+  }
+
+  /* Small caps labels: dont-board-me's quiet second voice. */
+  .label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Press feedback on every tappable surface. */
+  .press {
+    transition:
+      transform var(--dur-fast) var(--ease-house),
+      background-color var(--dur-fast) var(--ease-house);
+  }
+
+  .press:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+}
+
+/* Screen entrance: children rise in sequence (--i set per child). */
+.rise > * {
+  animation: rise var(--dur-base) var(--ease-house) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+/* Split-word reveal: each word rises out of its own mask. */
+.split-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* Room for Å (0.37em above the line box) and descenders (0.15em below). */
+  padding: 0.4em 0 0.2em;
+  margin: -0.4em 0 -0.2em;
+}
+
+.split-word > span {
+  display: inline-block;
+  animation: word-in var(--dur-reveal) var(--ease-house) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+  transform-origin: left bottom;
+}
+
+@keyframes word-in {
+  from {
+    transform: translateY(110%) rotate(6deg);
+  }
+}
+
+/* Cards */
+.card-size {
+  width: min(58vw, 33dvh, 280px);
+  container-type: inline-size;
+  perspective: 1200px;
+}
+
+.card-shape {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  border-radius: 6cqw;
+  overflow: hidden;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.4) inset,
+    0 18px 40px rgb(0 0 0 / 0.55);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.card-back {
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0 22cqw,
+      rgb(19 17 15 / 0.9) 22.5cqw 23.5cqw,
+      transparent 24cqw
+    ),
+    repeating-linear-gradient(45deg, rgb(19 17 15 / 0.85) 0 2.2cqw, transparent 2.2cqw 4.4cqw),
+    var(--color-accent);
+}
+
+.flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform var(--dur-flip) var(--ease-house);
+}
+
+.flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-front {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+/* A new card is dealt from above before it flips. */
+.deal {
+  animation: deal var(--dur-base) var(--ease-house) both;
+}
+
+@keyframes deal {
+  from {
+    transform: translateY(-18%) scale(0.92) rotate(-4deg);
+  }
+}
+
+/* Fanned hand on the home screen. */
+.fan > * {
+  animation: fan-in var(--dur-reveal) var(--ease-house) both;
+  animation-delay: calc(120ms + var(--i, 0) * 90ms);
+}
+
+@keyframes fan-in {
+  from {
+    transform: translateY(40%) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+/* Bottom sheet */
+.sheet-in {
+  animation: sheet-in var(--dur-base) var(--ease-house);
+}
+
+.fade-in {
+  animation: fade-in var(--dur-base) var(--ease-house);
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Switch */
+.toggle {
+  appearance: none;
+  width: 3.25rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--color-raise-2);
+  position: relative;
+  transition: background var(--dur-fast) var(--ease-house);
+  flex-shrink: 0;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--color-paper);
+  transition: transform var(--dur-fast) var(--ease-house);
+}
+
+.toggle:checked {
+  background: var(--color-accent);
+}
+
+.toggle:checked::after {
+  background: var(--color-ink);
+  transform: translateX(1.25rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

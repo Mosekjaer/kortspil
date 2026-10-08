@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "customConditions": ["source"],
+    "jsx": "react-jsx",
+    "types": ["vite/client", "vite-plugin-pwa/react"],
+    "exactOptionalPropertyTypes": false,
+    "noEmit": true,
+    "declaration": false,
+    "allowImportingTsExtensions": false
+  },
+  "include": ["src", "test", "vite.config.ts"]
+}
