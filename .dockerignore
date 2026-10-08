@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/coverage
+.git
+.github
+.claude
+.taste-check
+tasks
+*.md
+!README.md
+.env
+.env.*
