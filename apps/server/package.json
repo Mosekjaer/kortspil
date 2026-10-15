@@ -11,12 +11,12 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@fastify/static": "^10.1.5",
+    "@fastify/static": "^10.1.6",
     "@kortspil/core": "workspace:*",
     "fastify": "^5.12.5",
     "nanoid": "^6.0.2",
     "socket.io": "^4.8.4",
-    "zod": "^4.6.5"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^24.19.1",
